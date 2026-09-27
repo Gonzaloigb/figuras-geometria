@@ -27,15 +27,21 @@ function todoEnUno() {
 
         if (nombre.endsWith('.js')) {
           // Sin type="module": en file:// los modulos quedan bloqueados.
+          //
+          // El reemplazo va como FUNCION, no como cadena. Si fuera cadena,
+          // replace() interpretaria los patrones de dolar que el codigo
+          // compilado trae dentro de sus plantillas, y pegaria pedazos del HTML
+          // en medio del JavaScript. Sintoma: "Unexpected token <" y pagina en
+          // blanco, solo en algunos juegos, segun que cadena aparezca primero.
           codigo = codigo.replace(
             new RegExp(`<script[^>]*src="[^"]*${nombre.split('/').pop()}"[^>]*></script>`),
-            `<script>\n${archivo.code}\n</script>`,
+            () => `<script>\n${archivo.code}\n</script>`,
           );
           delete paquete[nombre];
         } else if (nombre.endsWith('.css')) {
           codigo = codigo.replace(
             new RegExp(`<link[^>]*href="[^"]*${nombre.split('/').pop()}"[^>]*>`),
-            `<style>\n${archivo.source}\n</style>`,
+            () => `<style>\n${archivo.source}\n</style>`,
           );
           delete paquete[nombre];
         }
